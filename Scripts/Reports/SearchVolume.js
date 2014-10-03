@@ -45,7 +45,7 @@ function main() {
         }
     });
 
-    Logger.log('Success: Email was sent.')
+    Logger.log('Success: Email was sent.');
 }
 
 function htmlReport(result) {
@@ -82,15 +82,14 @@ function htmlReport(result) {
 
         var bgcolor = (i % 2) ? 'f7f7f7' : '';
 
-        html += 
-            '<tr style="background:#' + bgcolor + ';">' +
-                '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ result[i].keyword + '</td>' +
-                '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ Math.round(result[i].search_volume) + '</td>' +
-                '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ result[i].clicks + '</td>' +
-                '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ (result[i].impression_share*100).toFixed(2) + '%</td>' +
-                '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ (result[i].reach*100).toFixed(2)  + '%</td>' +
-                '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ result[i].origin + '</td>' +
-            '</tr>';
+        html += '<tr style="background:#' + bgcolor + ';">' +
+                    '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ result[i].keyword + '</td>' +
+                    '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ Math.round(result[i].search_volume) + '</td>' +
+                    '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ result[i].clicks + '</td>' +
+                    '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ (result[i].impression_share*100).toFixed(2) + '%</td>' +
+                    '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ (result[i].reach*100).toFixed(2)  + '%</td>' +
+                    '<td style="border-bottom: 1px  solid #ddd;padding: 7px;">'+ result[i].origin + '</td>' +
+                '</tr>';
     }
 
     for(i in result)
@@ -103,15 +102,14 @@ function htmlReport(result) {
     totals[3] = totals[2]/totals[0];
     totals[4] = totals[1]/totals[0];
 
-        html += 
-            '<tr style="background: #50AD88;color: #E9FFF4;">' +
-                '<td style="border-top: 2px  solid #197943;padding: 7px;">Totals:</td>' +
-                '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ Math.round(totals[0]) + '</td>' +
-                '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ Math.round(totals[1]) + '</td>' +
-                '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ (totals[3]*100).toFixed(2) + '%</td>' +
-                '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ (totals[4]*100).toFixed(2) + '%</td>' +
-                '<td style="border-top: 2px  solid #197943;padding: 7px;"></td>' +
-            '</tr>';
+        html += '<tr style="background: #50AD88;color: #E9FFF4;">' +
+                    '<td style="border-top: 2px  solid #197943;padding: 7px;">Totals:</td>' +
+                    '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ Math.round(totals[0]) + '</td>' +
+                    '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ Math.round(totals[1]) + '</td>' +
+                    '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ (totals[3]*100).toFixed(2) + '%</td>' +
+                    '<td style="border-top: 2px  solid #197943;padding: 7px;">'+ (totals[4]*100).toFixed(2) + '%</td>' +
+                    '<td style="border-top: 2px  solid #197943;padding: 7px;"></td>' +
+                '</tr>';
 
         html += '</tbody>';
         html += '</table>';
