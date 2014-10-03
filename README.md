@@ -1,9 +1,27 @@
 AdWords Scripts Collection
 ===============
 
-Here you'll find a collection of my AdWords Scripts. Updated regularly.
+Here you'll find a collection of my AdWords Scripts. Updated regularly - kinda.
 
-### lib/pushco.js
+### Scripts/Reports/SearchVolume.js
+Total Search Volume for your Exact Match Keywords. The total search volume is based on your ```impressions / impression share``` - (e.g. 1000/0.25). Make sure to add your email in ```var email '';``` edit other config variables as desired.
+
+```javascript
+// Enter your email address
+var email = 'your@email.com'; 
+
+// Style your report with a logo
+var logo_img_url = 'http://example.com/example_logo.jpg';
+
+// Where should your logo link to?
+var logo_href_url = 'http://example.com/';
+
+var impressionThreshold = 100;
+var date = 'LAST_30_DAYS';
+```
+
+
+### Lib/PushCo.js
 
 A simple library to start using Push.co API. With this you'll be able to send push notifications to your iPhone.
 
