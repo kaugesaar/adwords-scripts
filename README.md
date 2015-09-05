@@ -3,6 +3,12 @@ AdWords Scripts Collection
 
 Here you'll find a collection of my AdWords Scripts. Updated regularly - kinda.
 
+
+### Scripts/Labels/AutoLabels.js
+
+Adds labels to all your campaigns based on it's name and a separator. Solved a question over at the [adwords scripts google group](https://groups.google.com/forum/#!topic/adwords-scripts/yFcXYlH2mV8).
+
+
 ### Scripts/Reports/SearchVolume.js
 Total Search Volume for your Exact Match Keywords. The total search volume is based on your ```impressions / impression share``` - (e.g. 1000/0.25). Make sure to add your email in ```var email '';``` edit other config variables as desired.
 
@@ -22,6 +28,8 @@ var date = 'LAST_30_DAYS';
 
 
 ### Lib/PushCo.js
+
+** OUT OF DATE - Pusch.co seems to be down **
 
 A simple library to start using Push.co API. With this you'll be able to send push notifications to your iPhone.
 
