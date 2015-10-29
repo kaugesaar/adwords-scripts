@@ -1,5 +1,8 @@
 /*
-*
+*              ** OUT OF DATE ** 
+*    ** Pusch.co seems to be out of business **
+*            *********************
+*            
 * Basic Client Lib for Push.co
 * Send Push notifications to your iPhone from AdWords Scripts
 *
