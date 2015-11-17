@@ -48,7 +48,7 @@ var AdWordsReport = function(settings) {
 
     /**
      * All columns used in the adwords report api
-     * some new ones must be missing, last checked
+     * some new ones might be missing, last checked
      * was version: v201502
      */
     var _columns = {
