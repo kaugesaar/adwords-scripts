@@ -437,7 +437,6 @@ var AdWordsReport = function(settings) {
         }
         options = { includeZeroImpressions: settings.zeroImpression };
         settings.awqlOptions = {};
-        Logger.log(finalAWQL)
         var report = AdWordsApp.report(finalAWQL, options);
         return parseResult(report)
     }
