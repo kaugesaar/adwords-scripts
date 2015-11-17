@@ -4,7 +4,7 @@
  */
 var createSpreadsheetFromObject = function (data){
 
-    var spreadsheet = SpreadsheetApp.create('Negative JS - Report');
+    var spreadsheet = SpreadsheetApp.create('AdWords Scripts - Spreadsheet');
     var sheet = spreadsheet.getActiveSheet();
 
     var sheetData = [];
