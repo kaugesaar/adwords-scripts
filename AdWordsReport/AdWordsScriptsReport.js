@@ -25,7 +25,10 @@ var AdWordsReport = function(settings) {
      */
     
     var _array = function(value) {
-        return value.split(', ');
+      if(value === '--') {
+          return null;
+      }
+      return value.split(';').map(Function.prototype.call, String.prototype.trim);
     }
 
     var _string = function(value) {
@@ -37,7 +40,7 @@ var AdWordsReport = function(settings) {
         if(value.indexOf('%') > -1) {
             return (parseFloat(value.replace(/[%|<]/g,'')) / 100);
         }
-        if(value === '---') {
+        if(value === '--') {
             return parseFloat(0);
         }
         return parseFloat(value.replace(/,/g,''))
