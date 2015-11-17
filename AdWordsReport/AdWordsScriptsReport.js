@@ -1,5 +1,5 @@
 function main() {
-  var ga = new AdWordsReport();
+    var ga = new AdWordsReport();
     var reportData = ga.awql()
         .select(['Clicks','Impressions','Year','Cost','SearchImpressionShare'])
         .from('ACCOUNT_PERFORMANCE_REPORT')
