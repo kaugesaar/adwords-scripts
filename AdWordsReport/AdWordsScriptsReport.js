@@ -192,7 +192,7 @@ var AdWordsReport = function(settings) {
         CustomAttribute4:  _string,
         CustomerDescriptiveName:  _string,
         Date:  _string,
-        DayOfWeek:  _float,
+        DayOfWeek:  _string,
         DeliveryMethod:  _string,
         Description1:  _string,
         Description2:  _string,
