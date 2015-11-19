@@ -16,7 +16,7 @@ function main() {
       
         if(endDate != null && DATE.year > endDate.year && DATE.month > endDate.month && DATE.day > endDate.day) { continue; }
       
-        // From here you can do what you want with campaigns which hasen't ended.
+        // From here you can do what you want with campaigns which hasn't ended.
 
     }
 
