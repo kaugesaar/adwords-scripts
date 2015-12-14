@@ -17,7 +17,7 @@
  *
  * @TODO 
  *  - increase the amount of keyword that can be processed
- *  - look at if the are any differences of mobile final url and final url
+ *  - look at differences of mobile final url and final url
  */
 
 
