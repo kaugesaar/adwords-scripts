@@ -16,7 +16,8 @@
  * The script can handle up to ~10.000 keyword per account.
  *
  * @TODO 
- *  - increase the amount of keyword that can be processed 
+ *  - increase the amount of keyword that can be processed
+ *  - look at if the are any differences of mobile final url and final url
  */
 
 
