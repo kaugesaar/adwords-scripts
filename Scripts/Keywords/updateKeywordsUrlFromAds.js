@@ -44,7 +44,7 @@ function processKeywords() {
     while (keywordIterator.hasNext()) {
         var keyword = keywordIterator.next();
         var adGroup = keyword.getAdGroup();
-        var ad = adGroup.ads().get().next();
+        var ad = adGroup.ads().withCondition('Status = ENABLED').get().next();
         var adUrl = ad.urls().getFinalUrl();
         var keywordUrl = keyword.urls().getFinalUrl();
         if(adUrl.toLowerCase() == keywordUrl.toLowerCase()) { continue; }
