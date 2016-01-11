@@ -134,7 +134,3 @@ var BayesianTesting = function() {
     }
 
 }
-
-var bt = new BayesianTesting();
-console.log(bt.propability_1_beats_2(10,100,10,50))
-console.log(bt.propability_1_beats_2_and_3(10,100,10,150,5,75))
