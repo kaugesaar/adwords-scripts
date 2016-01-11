@@ -3,8 +3,9 @@
  *
  * This script works great for those who are using DoubleClick Search
  * and are used to updating url at ad level rather than at keyword level.
- * It will sync in the same matter as DoubleClick does the first time you
- * add a new keyword without any final url.
+ * It will sync in the same matter as DoubleClick does. With the difference
+ * that you can schuedle this script and it will keep doing it and not like
+ * a single time batch job...
  *
  * In case you have keywords with a final url you do not want to change or
  * you are running a landing page test apply the label "kw-ds-manual" to 
@@ -15,7 +16,8 @@
  * The script can handle up to ~10.000 keyword per account.
  *
  * @TODO 
- *  - increase the amount of keyword that can be processed 
+ *  - increase the amount of keyword that can be processed
+ *  - look at differences of mobile final url and final url
  */
 
 
