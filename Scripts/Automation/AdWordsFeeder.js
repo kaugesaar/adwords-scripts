@@ -192,15 +192,6 @@ var AdWordsFeeder = function() {
   }
 }
 
-function _httpContents(url) {
-  var req = new XMLHttpRequest();
-  req.open('GET', url, true);
-  req.send();
-  if(req.readyState === XMLHttpRequest.DONE) {
-    return req.responseText;
-  }
-}
-
 /*!
   Papa Parse
   v4.1.2
