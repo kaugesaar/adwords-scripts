@@ -1,9 +1,9 @@
 /**
  * Feeder
- *   [X] get csv feed from external url 
- *   [ ] method for creating keyword-template
+ *   [ ] get csv feed from external url 
+ *   [X] method for creating keyword-template
  *   [X] method for creating ad-template
- *   [ ] method for creating adgroup-template
+ *   [X] method for creating adgroup-template
  *   [X] method for creating campaign-template
  *   [ ] parse feed through template, validate, upload with AdWordsApp.bulkUploads()
  *   [ ] pause products that is no longer in the feed but is enabled in the adwords account
@@ -11,31 +11,45 @@
  */
 
 function main() {
-  var awf = new AdWordsFeeder();
-      awf.use('http://google.com')
-        .campaign({
-          'Campaign': 'Feed | EXACT | {{product type}}',
-          'Budget': 100,
-        })
-        .campaign({
-          'Campaign': 'Feed | BMM | {{product type}}',
-          'Budget': 100,
-        })        
-        .adGroup({
-          'Campaign': 'Feed | EXACT | {{product type}}',
-        })
-        .adGroup({
-          'Campaign': 'Feed | BMM | {{product type}}'
-        })
+  var adWordsFeeder = new AdWordsFeeder().use({
+    'url':'http://kaugesaar.se',
+    'encoding':'iso-8859-1',
+    'delimiter':'\t',
+  });
+
+  // Add campaign templates
+  var campaigns = adWordsFeeder.campaign({
+    'Campaign': 'Feed | EXACT | {{product type}}',
+    'Budget': 100,
+  }).campaign({
+    'Campaign': 'Feed | BMM | {{product type}}',
+    'Budget': 100,
+  });
+
+  // Add adgroups templates
+  var adGroups = adWordsFeeder.adGroup({
+    'Campaign': 'Feed | EXACT | {{product type}}',
+  }).adGroup({
+    'Campaign': 'Feed | BMM | {{product type}}'
+  });
+
+  // Add ads tempaltes
+  var ads = adWordsFeeder.ad({
+    'Campaign': 'Feed | EXACT | {{product type}}',
+  }).ad({
+    'Campaign': 'Feed | BMM | {{product type}}',
+  });
 }
 
 
-var AdWordsFeeder = function(settings) {
-  settings = settings || {};
-  settings.feederOptions = {};
-  settings.feederOptions.campaignTemplates = [];
-  settings.feederOptions.adGroupTemplates = [];
-  settings.feederOptions.adTemplates = [];
+var AdWordsFeeder = function() {
+  settings = {};
+  settings.feed = {};
+  settings.templates = {};
+  settings.templates.campaigns = [];
+  settings.templates.adGroups = [];
+  settings.templates.ads = [];
+  settings.templates.keywords = [];
 
   var campaignStatement = function(statement) {
     statement = statement || {};
@@ -46,11 +60,14 @@ var AdWordsFeeder = function(settings) {
     statement.CampaignSubtype = statement.CampaignSubtype || 'Standard';
     statement.CampaignState = statement.CampaignState|| 'enabled';
 
-    settings.feederOptions.campaignTemplates.push(statement);
+    settings.templates.campaigns.push(statement);
 
     return {
       campaign: campaignStatement,
-      adGroup: adGroupStatement
+      adGroup: adGroupStatement,
+      ad: adStatement,
+      keyword: keywordStatement,
+      upload: upload
     }
   }
 
@@ -62,12 +79,14 @@ var AdWordsFeeder = function(settings) {
     statement.BidStrategyType = statement.BidStrategyType || 'cpc';
     statement.DefaultMaxCpc = statement.DefaultMaxCpc || 4;
 
-    settings.feederOptions.adGroupTemplates.push(statement);
+    settings.templates.adGroups.push(statement);
 
     return {
       campaign: campaignStatement,
       adGroup: adGroupStatement,
-      ad: adStatement
+      ad: adStatement,
+      keyword: keywordStatement,
+      upload: upload
     }
   }
 
@@ -81,23 +100,68 @@ var AdWordsFeeder = function(settings) {
     statement.DisplayUrl = statement.DisplayUrl || 'www.example.com/DisplayUrl',
     statement.FinalUrl = statement.FinalUrl || 'http://www.example.com/DisplayUrl/FinalUrl'
 
-    settings.feederOptions.adsTemplates.push(statement);
+    settings.templates.ads.push(statement);
 
     return {
       campaign: campaignStatement,
       adGroup: adGroupStatement,
       ad: adStatement,
+      keyword: keywordStatement,
+      upload: upload
     }
   }
 
+  var keywordStatement = function(statement) {
+    statement = statement || {};
+    statement.Campaign = statement.Campaign || 'AdWordsFeeder Campaign';
+    statement.AdGroup = statement.Campaign || 'AdWordsFeeder AdGroup';
+    statement.Keyword = statement.Keyword || 'your keyword';
+    statement.MaxCpc = statement.MaxCpc || null;
+    statement.MatchType = statement.MatchType || null;
+    statement.FinalUrl = statement.FinalUrl || null;
+
+    settings.templates.keywords.push(statement);
+
+    return {
+      campaign: campaignStatement,
+      adGroup: adGroupStatement,
+      ad: adStatement,
+      keyword: keywordStatement,
+      upload: upload
+    }
+  }
+
+  var upload = function(statement) {
+    getCsvFeed(settings.feedUrl)
+  }
+
   this.use = function(config) {
-    if(typeof config === 'string') {
-      throw new Error("Url needs to in type of string")
-    } else {
-      settings.feedUrl = url
+    if (typeof config === 'string') {
+      settings.feed.url = config;
+      settings.feed.encoding = 'utf-8';
+      settings.feed.delimiter = ',';
+
       return {
-        campaign : campaignStatement 
+        campaign: campaignStatement,
+        adGroup: adGroupStatement,
+        ad: adStatement,
+        keyword: keywordStatement,
       }
+
+    } else if (typeof config === 'object') {
+      settings.feed.url = config.url;
+      settings.feed.encoding = config.encoding || 'utf-8';
+      settings.feed.delimiter = config.delimiter || ',';
+      console.log(settings)
+      return {
+        campaign: campaignStatement,
+        adGroup: adGroupStatement,
+        ad: adStatement,
+        keyword: keywordStatement,
+      }
+
+    } else {
+      throw new Error('You must specify an url to the feed that should be used.')
     }
   }
 }
