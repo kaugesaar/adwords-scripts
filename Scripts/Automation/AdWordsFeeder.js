@@ -24,9 +24,6 @@ function main() {
   var campaigns = adWordsFeeder.campaign({
     'Campaign': 'Feed | EXACT | {{product type}}',
     'Budget': 100,
-  }).campaign({
-    'Campaign': 'Feed | BMM | {{product type}}',
-    'Budget': 100,
   });
 
   // Add adgroups templates
@@ -138,6 +135,24 @@ var AdWordsFeeder = function() {
 
   var upload = function(statement) {
     var feed = _getCsvFeed(settings.feed);
+    var upload = [];
+
+    if(settings.templates.campaigns.length > 0) {
+      var ct = settings.templates.campaigns;
+      for (var i = 0; i < ct.length; i++) {
+        for (var j = 0; j < feed.length; j++) {
+          var template = ct[i];
+          upload.push({
+            'Campaign': _replaceTag(template.Campaign, feed[j]),
+            'Budget': template.Budget,
+            'Bid Strategy type': template.BidStrategyType,
+            'Campaign type': template.CampaignType
+          })
+        };
+      };
+    }
+
+    console.log(upload[0])
   }
 
   var _getCsvFeed = function(config) {
@@ -160,6 +175,15 @@ var AdWordsFeeder = function() {
 
   }
 
+  var _replaceTag = function(str,feed){
+    var tag = /{{([^}]+)}}/g;
+    var result = str.replace(tag, function(str){
+      var key = str.replace(/{|}/g,'').trim();
+      return feed[key];
+    })
+    return result;
+  }
+
   this.use = function(config) {
     if (typeof config === 'string') {
       settings.feed.url = config;
@@ -177,7 +201,7 @@ var AdWordsFeeder = function() {
       settings.feed.url = config.url;
       settings.feed.encoding = config.encoding || 'utf-8';
       settings.feed.delimiter = config.delimiter || ',';
-      console.log(settings)
+      
       return {
         campaign: campaignStatement,
         adGroup: adGroupStatement,
