@@ -1,5 +1,6 @@
 var fs = require('fs');
 var Papa = require('babyparse');
+var md5 = require('crypto-js/md5');
 
 /**
  * Feeder
@@ -8,7 +9,9 @@ var Papa = require('babyparse');
  *   [X] method for creating ad-template
  *   [X] method for creating adgroup-template
  *   [X] method for creating campaign-template
- *   [ ] parse feed through template, validate, upload with AdWordsApp.bulkUploads()
+ *   [X] parse feed through template create csv
+ *   [ ] validate all fields
+ *   [ ] upload to adwords (need to check wether or not all csv need to be uploaded separately)
  *   [ ] pause products that is no longer in the feed but is enabled in the adwords account
  *   [ ] pause ads where final url returns anything but 200 OK
  */
@@ -20,29 +23,67 @@ function main() {
     'delimiter':'\t',
   });
 
+  var campaign = 'Feed | Script | {{product type}}';
+  var adGroupBmm = '{{id}} | BMM';
+  var adGroupExact = '{{id}} | EXACT';
+
   // Add campaign templates
-  var campaigns = adWordsFeeder.campaign({
-    'Campaign': 'Feed | EXACT | {{product type}}',
+  var campaigns = adWordsFeeder
+  .campaign({
+    'Campaign': campaign,
+    'CampaignState': 'paused',
     'Budget': 100,
+    'Languages': 'sv',
+    'Location': 'Sweden'
   });
 
   // Add adgroups templates
-  var adGroups = adWordsFeeder.adGroup({
-    'Campaign': 'Feed | EXACT | {{product type}}',
-  }).adGroup({
-    'Campaign': 'Feed | BMM | {{product type}}'
+  var adGroups = adWordsFeeder
+  .adGroup({
+    'Campaign': campaign,
+    'AdGroup': adGroupBmm
+  })
+  .adGroup({
+    'Campaign': campaign,
+    'AdGroup': adGroupExact
   });
 
   // Add ads tempaltes
-  var ads = adWordsFeeder.ad({
-    'Campaign': 'Feed | EXACT | {{product type}}',
-  }).ad({
-    'Campaign': 'Feed | BMM | {{product type}}',
+  var ads = adWordsFeeder
+  .ad({
+    'Campaign': campaign,
+    'AdGroup': adGroupExact,
+    'Ad': '{{title}}',
+    'DescriptionLine1': 'Buda på {{title}}',
+    'DescriptionLine2': 'Utropspris: {{price}} :-',
+    'DisplayUrl': 'www.auktionsverket.se/',
+    'FinalUrl': 'http://{{link}}'
+  })
+  .ad({
+    'Campaign': campaign,
+    'AdGroup': adGroupBmm,
+    'Ad': '{{title}}',
+    'DescriptionLine1': 'Buda på {{title}}',
+    'DescriptionLine2': 'Utropspris: {{price}} :-',
+    'DisplayUrl': 'www.auktionsverket.se/',
+    'FinalUrl': 'http://{{link}}'
+  });
+
+  var keywords = adWordsFeeder
+  .keyword({
+    'Campaign': campaign,
+    'AdGroup': adGroupExact,
+    'Keyword': '[{{title}}]'
+  })
+  .keyword({
+    'Campaign': campaign,
+    'AdGroup': adGroupBmm,
+    'Keyword': '+{{title}}'
   });
 
   adWordsFeeder.upload();
-}
 
+}
 
 var AdWordsFeeder = function() {
   settings = {};
@@ -55,12 +96,16 @@ var AdWordsFeeder = function() {
 
   var campaignStatement = function(statement) {
     statement = statement || {};
+    statement._index = 1;
     statement.Campaign = statement.Campaign || 'AdWordsFeeder Campaign';
     statement.Budget = statement.Budget || 200;
     statement.BidStrategyType = statement.BidStrategyType || 'cpc';
     statement.CampaignType = statement.CampaignType || 'Search Only';
     statement.CampaignSubtype = statement.CampaignSubtype || 'Standard';
     statement.CampaignState = statement.CampaignState|| 'enabled';
+    statement.BidModifier = statement.BidModifier || 0;
+    statement.Languages = statement.Languages || 'sv';
+    statement.Location = statement.Location || 'Sweden';
 
     settings.templates.campaigns.push(statement);
 
@@ -75,10 +120,11 @@ var AdWordsFeeder = function() {
 
   var adGroupStatement = function(statement) {
     statement = statement || {};
+    statement._index = 2;
     statement.Campaign = statement.Campaign || 'AdWordsFeeder Campaign';
-    statement.AdGroup = statement.Campaign || 'AdWordsFeeder AdGroup';
+    statement.AdGroup = statement.AdGroup || 'AdWordsFeeder AdGroup';
     statement.AdGroupState = statement.AdGroupState || 'enabled';
-    statement.BidStrategyType = statement.BidStrategyType || 'cpc';
+    //statement.BidStrategyType = statement.BidStrategyType || 'cpc';
     statement.DefaultMaxCpc = statement.DefaultMaxCpc || 4;
 
     settings.templates.adGroups.push(statement);
@@ -94,13 +140,16 @@ var AdWordsFeeder = function() {
 
   var adStatement = function(statement) {
     statement = statement || {};
+    statement._index = 3;
     statement.Campaign = statement.Campaign || 'AdWordsFeeder Campaign';
-    statement.AdGroup = statement.Campaign || 'AdWordsFeeder AdGroup';
-    statement.Title = statement.Title || 'Adwords Ad Title',
+    statement.AdType = statement.AdType || 'Text ad'
+    statement.AdGroup = statement.AdGroup || 'AdWordsFeeder AdGroup';
+    statement.Ad = statement.Ad || 'Adwords Ad Headline',
     statement.DescriptionLine1 = statement.DescriptionLine1 || 'Your first line of Description',
     statement.DescriptionLine2 = statement.DescriptionLine2 || 'And this is the second - what up!',
     statement.DisplayUrl = statement.DisplayUrl || 'www.example.com/DisplayUrl',
     statement.FinalUrl = statement.FinalUrl || 'http://www.example.com/DisplayUrl/FinalUrl'
+    statement.Status = statement.Status || 'enabled'
 
     settings.templates.ads.push(statement);
 
@@ -115,12 +164,14 @@ var AdWordsFeeder = function() {
 
   var keywordStatement = function(statement) {
     statement = statement || {};
+    statement._index = 4;
     statement.Campaign = statement.Campaign || 'AdWordsFeeder Campaign';
-    statement.AdGroup = statement.Campaign || 'AdWordsFeeder AdGroup';
+    statement.AdGroup = statement.AdGroup || 'AdWordsFeeder AdGroup';
     statement.Keyword = statement.Keyword || 'your keyword';
     statement.MaxCpc = statement.MaxCpc || null;
     statement.MatchType = statement.MatchType || null;
     statement.FinalUrl = statement.FinalUrl || null;
+    statement.Status = statement.Status || 'enabled';
 
     settings.templates.keywords.push(statement);
 
@@ -137,22 +188,142 @@ var AdWordsFeeder = function() {
     var feed = _getCsvFeed(settings.feed);
     var upload = [];
 
+    // add campaigns to be uploaded
     if(settings.templates.campaigns.length > 0) {
-      var ct = settings.templates.campaigns;
-      for (var i = 0; i < ct.length; i++) {
-        for (var j = 0; j < feed.length; j++) {
-          var template = ct[i];
-          upload.push({
-            'Campaign': _replaceTag(template.Campaign, feed[j]),
-            'Budget': template.Budget,
-            'Bid Strategy type': template.BidStrategyType,
-            'Campaign type': template.CampaignType
-          })
-        };
-      };
+      var upload = [];
+      _parseTemplates(settings.templates.campaigns, feed, function(campaign) {
+        upload.push(campaign);
+      })
+      var csv = Papa.unparse(_unqique(upload));
+      fs.writeFile('local.campaigns.output.csv', csv);
     }
 
-    console.log(upload[0])
+    // add adgroups to be uploaded
+    if(settings.templates.adGroups.length > 0) {
+      var upload = [];
+      _parseTemplates(settings.templates.adGroups, feed, function(adGroup) {
+        upload.push(adGroup);
+      })
+      var csv = Papa.unparse(_unqique(upload));
+      fs.writeFile('local.adgroup.output.csv', csv);
+    }
+
+    // add ads to be uploaded
+    if(settings.templates.ads.length > 0) {
+      var upload = [];
+      _parseTemplates(settings.templates.ads, feed, function(ad) {
+        upload.push(_shortenAd(ad));
+      })
+      var csv = Papa.unparse(_unqique(upload));
+      fs.writeFile('local.ad.output.csv', csv);
+    }
+
+    // add keywords to be uploaded
+    if(settings.templates.keywords.length > 0) {
+      var upload = [];
+      _parseTemplates(settings.templates.keywords, feed, function(keyword) {
+        upload.push(keyword);
+      })
+      var csv = Papa.unparse(_unqique(upload));
+      fs.writeFile('local.keywords.output.csv', csv);
+    }
+
+
+  }
+
+  var _getadWordsCsvRow = function(template) {
+    return {
+      '_index': template._index,
+      'Campaign' : template.Campaign || '',
+      'Budget' : template.Budget || '',
+      'Campaign Type' : template.CampaignType || '',
+      'Campaign Status' : template.CampaignState || '',
+      'Bid Strategy type': template.BidStrategyType || '',
+      'Languages' : template.Languages || '',
+      'Location' : template.Location || '',
+      'Bid Modifier' : template.BidModifier || '',
+      'Ad Group' : template.AdGroup || '',
+      'Ad Group Status' : template.AdGroupState || '',
+      'Ad type': template.AdType || '',
+      'Max CPC' : template.MaxCpc || '',
+      'Ad' : template.Ad || '',
+      'Description Line 1' : template.DescriptionLine1 || '',
+      'Description Line 2' : template.DescriptionLine2 || '',
+      'Display Url' : template.DisplayUrl || '',
+      'Final Url' : template.FinalUrl || '',
+      'Criterion Type' : template.CriterionType || '',
+      'Keyword' : template.Keyword || '',
+      'Status' : template.Status || '',
+      //'Sitelink Text' : ''
+    }
+  }
+
+  var _unqique = function(a) {
+    var tempA = [];
+
+    a.forEach(function(row){
+      row._hash = row._index + '0000' + md5(JSON.stringify(row))
+      tempA.push(row)
+    })
+
+    tempA.sort(function(a,b){
+      if(a._hash < b._hash) {
+        return -1;
+      } else if (a._hash > b._hash) {
+        return 1;
+      } else {
+        return 0
+      }
+    });
+
+    for (var i = 1; i < tempA.length;) {
+      var curr = JSON.stringify(tempA[i]);
+      var prev = JSON.stringify(tempA[i-1])
+      if(curr === prev) {
+        tempA.splice(i, 1)
+      } else {
+        i++;
+      }
+    }
+
+    return tempA;
+  }
+
+  var _parseTemplates = function (templates, feed, callback) {
+    for (var i = 0; i < templates.length; i++) {
+      for (var j = 0; j < feed.length; j++) {
+        var template = templates[i];
+        var csvRow = _getadWordsCsvRow(template);
+        _replaceAllTags(csvRow, feed[j]);
+        if(typeof callback === 'function') {
+          callback(csvRow);
+        }
+      }
+    }
+  }
+
+  var _shortenAd = function(ad) {
+    // Removes the last word till we
+    // are at 25 characters at most.
+    ad['Ad'] = _strMaxLength(ad['Ad'], 25);
+    ad['Description Line 1'] = _strMaxLength(ad['Description Line 1'], 35);
+    ad['Description Line 2'] = _strMaxLength(ad['Description Line 2'], 35);
+    ad['Display Url'] = _strMaxLength(ad['Display Url'], 35);
+
+    return ad;
+  }
+
+  var _strMaxLength = function(str, length) {
+    // Removes the last word till we
+    // are at $length characters at most.
+    while (str.length > length) {
+      var lastWord = str.lastIndexOf(' ');
+      str = str.substring(0, lastWord);
+    }
+    // remove unnecessary whitespace
+    str.replace(/[,i]*\s*$/, '').trim();
+
+    return str;
   }
 
   var _getCsvFeed = function(config) {
@@ -160,7 +331,7 @@ var AdWordsFeeder = function() {
 
     //prod version, but hey much faster using fs while working on dev locally
     //var csvFile = UrlFetchApp.fetch(config.url).getContentText(config.encoding);
-    var csvFile = fs.readFileSync('local.products.csv','utf-8');
+    var csvFile = fs.readFileSync('local.short.csv','utf-8');
 
 
     Papa.parse((csvFile), {
@@ -171,8 +342,21 @@ var AdWordsFeeder = function() {
       }
     });
 
+    // remove last line of csv if its empty
+    products.pop()
     return products;
+  }
 
+  var _replaceAllTags = function(obj,feed) {
+    var propNames = Object.getOwnPropertyNames(obj);
+
+    propNames.forEach(function(name){
+      if(typeof obj[name] === 'string') {
+        obj[name] = _replaceTag(obj[name], feed)
+      }
+    })
+
+    return obj;
   }
 
   var _replaceTag = function(str,feed){
@@ -201,7 +385,7 @@ var AdWordsFeeder = function() {
       settings.feed.url = config.url;
       settings.feed.encoding = config.encoding || 'utf-8';
       settings.feed.delimiter = config.delimiter || ',';
-      
+
       return {
         campaign: campaignStatement,
         adGroup: adGroupStatement,
