@@ -11,7 +11,7 @@ function main() {
 }
 
 var AdWordsReport = function(settings) {
-    settings = settings || {}
+    settings = settings || {};
     settings.limit = null || settings.limit;
     settings.remaining = null || settings.remaining;
     settings.exportToSheet = false || settings.exportToSheet;
@@ -23,17 +23,17 @@ var AdWordsReport = function(settings) {
      * returning everything from the report API
      * as strings and what not.
      */
-    
+
     var _array = function(value) {
       if(value === '--') {
           return null;
       }
       return value.split(';').map(Function.prototype.call, String.prototype.trim);
-    }
+    };
 
     var _string = function(value) {
         return String(value);
-    }
+    };
 
     var _float = function(value) {
         value = String(value);
@@ -43,8 +43,8 @@ var AdWordsReport = function(settings) {
         if(value === '--') {
             return parseFloat(0);
         }
-        return parseFloat(value.replace(/,/g,''))
-    }
+        return parseFloat(value.replace(/,/g,''));
+    };
 
     /**
      * All columns used in the adwords report api
@@ -360,17 +360,17 @@ var AdWordsReport = function(settings) {
         ViewThroughConversionsSignificance:  _float,
         Week:  _string,
         Year:  _string
-    }
+    };
 
     var selectStatement = function(rows) {
         if(Array.isArray(rows)) {
-            rows = rows.join(',')
+            rows = rows.join(',');
         }
         settings.awqlOptions.select = rows;
         return {
             from: fromStatement
-        }
-    }
+        };
+    };
 
     var fromStatement = function(report) {
         settings.awqlOptions.from = report;
@@ -378,31 +378,31 @@ var AdWordsReport = function(settings) {
             where: whereStatement,
             and: andStatement,
             during: duringStatement
-        }
-    }
+        };
+    };
 
     var whereStatement = function(statement) {
         settings.awqlOptions.where = statement;
         return {
             and: andStatement,
             during: duringStatement
-        }
-    }
+        };
+    };
 
     var andStatement = function(statement) {
         if(!settings.awqlOptions.and) {
             settings.awqlOptions.and = [];
         }
         if(Array.isArray(statement)) {
-            settings.awqlOptions.and = [].contact.apply([],settings.awqlOptions.and, statement)
+            settings.awqlOptions.and = [].contact.apply([],settings.awqlOptions.and, statement);
         } else {
-            settings.awqlOptions.and.push(statement)
+            settings.awqlOptions.and.push(statement);
         }
         return {
             and: andStatement,
             during: duringStatement
-        }
-    }
+        };
+    };
 
     var duringStatement = function(timeframe) {
         if(Array.isArray(timeframe)) {
@@ -411,8 +411,8 @@ var AdWordsReport = function(settings) {
         settings.awqlOptions.during = timeframe;
         return {
             run: runAWQL
-        }
-    }
+        };
+    };
 
     var runAWQL = function() {
         var finalAWQL = settings.awqlOptions;
@@ -431,15 +431,15 @@ var AdWordsReport = function(settings) {
             }
             if(settings.awqlOptions.during) {
                 finalAWQL += ' DURING ' + settings.awqlOptions.during;
-            } 
-        } else if (typeof finalAWQL === 'String') {
-            finalAWQL = finalAWQL.split(', ').join(',')
+            }
+        } else if (typeof finalAWQL === 'string') {
+            finalAWQL = finalAWQL.split(', ').join(',');
         }
         options = { includeZeroImpressions: settings.zeroImpression };
         settings.awqlOptions = {};
         var report = AdWordsApp.report(finalAWQL, options);
-        return parseResult(report)
-    }
+        return parseResult(report);
+    };
 
     var parseResult = function(data) {
         var finalObject = {};
@@ -458,15 +458,15 @@ var AdWordsReport = function(settings) {
             var rowObject = {};
             var columnNames = Object.keys(row);
             columnNames.forEach(function(columnName){
-                if(_columns[columnName] != undefined) {
+                if(_columns[columnName] !== undefined) {
                     var value = row[columnName];
-                    return rowObject[columnName] = _columns[columnName](value);
+                    rowObject[columnName] = _columns[columnName](value);
                 }
-            })
+            });
             finalObject.data.push(rowObject);
         }
         return finalObject;
-    }
+    };
 
     this.use = function(options) {
         if (typeof options === 'object') {
@@ -477,9 +477,9 @@ var AdWordsReport = function(settings) {
                 settings.zeroImpression = options.zeroImpression;
             }
         } else {
-            throw new Error('Wrong param "options"')
+            throw new Error('Wrong param "options"');
         }
-    }
+    };
 
     this.awql = function(options) {
         if(options) {
@@ -492,11 +492,11 @@ var AdWordsReport = function(settings) {
             }
             return {
                 run: runAWQL
-            }
+            };
         }
         return {
             select: selectStatement
-        }
-    }
-    return this
-}
+        };
+    };
+    return this;
+};
