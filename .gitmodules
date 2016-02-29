@@ -1,0 +1,3 @@
+[submodule "AdWordsReport"]
+	path = AdWordsReport
+	url = https://github.com/getscript/AdWordsReport.git
