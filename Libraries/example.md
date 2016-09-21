@@ -21,7 +21,9 @@ function main() {
     pos: 'top'
   };
 
-  trello.post('/cards/', newCard);
+  trello.post('/cards/', newCard, function(err, data) {
+    Logger.log(data);
+  });
   
 }
 
