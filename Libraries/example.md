@@ -9,8 +9,8 @@ function main() {
   var trello = new Trello(key, token);
   
   var list = trello.get('boards/[board_id]/lists', function(err, data) {
-    // Here you might actually wanna return something elese
-    // than the first list in the response.
+    // Here you might actually wanna return something
+    // else than the first list in the response.
     return data[0];
   });
   
